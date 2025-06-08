@@ -3,6 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="google-site-verification"
+      content="U-GWwZOKUY-FqRJYQu4ealLEaLnFK4WTKgDI7SCbS3E"
+    />
     <title>QuickPayCheck - Instant US Take-Home Pay Calculator</title>
     <meta
       name="description"
@@ -245,10 +249,60 @@
         federal: 0.15, // Average federal tax rate
         fica: 0.0765, // Social Security (6.2%) + Medicare (1.45%)
         states: {
-          NY: 0.06, // Example state tax
-          CA: 0.07,
-          TX: 0.0, // No state income tax
-          // Add more states
+          // States with no state income tax
+          AK: 0.0, // Alaska
+          FL: 0.0, // Florida
+          NV: 0.0, // Nevada
+          SD: 0.0, // South Dakota
+          TN: 0.0, // Tennessee
+          TX: 0.0, // Texas
+          WA: 0.0, // Washington (note: WA has a capital gains tax for high earners, not income tax)
+          WY: 0.0, // Wyoming
+          NH: 0.0, // New Hampshire (only taxes interest and dividends, effectively 0% for wages by 2025)
+
+          // Example average state income tax rates (highly simplified)
+          AL: 0.04, // Alabama
+          AZ: 0.025, // Arizona (flat rate)
+          AR: 0.04, // Arkansas (average for lower brackets)
+          CA: 0.07, // California (high income state, simplified average)
+          CO: 0.0455, // Colorado (flat rate)
+          CT: 0.05, // Connecticut (average)
+          DE: 0.05, // Delaware (average)
+          GA: 0.04, // Georgia (average)
+          HI: 0.07, // Hawaii (average)
+          ID: 0.05, // Idaho (flat rate, simplified)
+          IL: 0.0495, // Illinois (flat rate)
+          IN: 0.0315, // Indiana (flat rate)
+          IA: 0.05, // Iowa (average)
+          KS: 0.04, // Kansas (average)
+          KY: 0.045, // Kentucky (flat rate)
+          LA: 0.03, // Louisiana (average)
+          ME: 0.06, // Maine (average)
+          MD: 0.04, // Maryland (average)
+          MA: 0.05, // Massachusetts (flat rate)
+          MI: 0.0425, // Michigan (flat rate)
+          MN: 0.07, // Minnesota (average)
+          MS: 0.05, // Mississippi (flat rate, simplified)
+          MO: 0.04, // Missouri (average)
+          MT: 0.05, // Montana (average)
+          NE: 0.04, // Nebraska (average)
+          NJ: 0.06, // New Jersey (average)
+          NM: 0.04, // New Mexico (average)
+          NY: 0.06, // New York (average, could be higher for NYC)
+          NC: 0.0475, // North Carolina (flat rate)
+          ND: 0.02, // North Dakota (average)
+          OH: 0.03, // Ohio (average)
+          OK: 0.04, // Oklahoma (average)
+          OR: 0.08, // Oregon (average)
+          PA: 0.0307, // Pennsylvania (flat rate)
+          RI: 0.05, // Rhode Island (average)
+          SC: 0.06, // South Carolina (average)
+          UT: 0.0485, // Utah (flat rate)
+          VT: 0.06, // Vermont (average)
+          VA: 0.04, // Virginia (average)
+          WV: 0.05, // West Virginia (average)
+          WI: 0.05, // Wisconsin (average)
+          DC: 0.06, // District of Columbia (average)
         },
       };
 
