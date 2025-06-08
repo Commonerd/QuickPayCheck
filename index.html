@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QuickPayCheck - Instant US Take-Home Pay Calculator</title>
+    <meta
+      name="description"
+      content="QuickPayCheck is a free, easy-to-use US net pay calculator. Estimate your take-home salary after federal, state, and local taxes, and social security."
+    />
+
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "QuickPayCheck",
+        "url": "https://quickpaycheck.netlify.app",
+        "about": "A user-friendly US net pay calculator for instant salary estimations.",
+        "potentialAction": {
+          "@type": "CalculateAction",
+          "name": "Calculate Net Pay",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://quickpaycheck.netlify.app/?grossPay={grossPay}&payPeriod={payPeriod}&state={state}",
+            "query-input": "required name=grossPay, required name=payPeriod, required name=state"
+          }
+        }
+      }
+    </script>
+
+    <style>
+      /* CSS would go here */
+      body {
+        font-family: "Arial", sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f4f7f6;
+        color: #333;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      h1,
+      h2 {
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 25px;
+      }
+      .input-group {
+        margin-bottom: 20px;
+        display: flex;
+        flex-direction: column;
+      }
+      .input-group label {
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #555;
+      }
+      .input-group input,
+      .input-group select {
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      button {
+        background-color: #28a745;
+        color: white;
+        padding: 14px 25px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 18px;
+        width: 100%;
+        transition: background-color 0.3s ease;
+      }
+      button:hover {
+        background-color: #218838;
+      }
+      #results {
+        margin-top: 30px;
+        padding: 20px;
+        background-color: #e9ecef;
+        border-radius: 5px;
+        border-left: 5px solid #28a745;
+        display: none;
+      }
+      #results p {
+        margin: 10px 0;
+        font-size: 17px;
+      }
+      #results strong {
+        color: #007bff;
+      }
+      .save-snapshot-btn {
+        background-color: #007bff;
+        margin-top: 15px;
+      }
+      .save-snapshot-btn:hover {
+        background-color: #0056b3;
+      }
+      #snapshots-container {
+        margin-top: 30px;
+        border-top: 1px dashed #ccc;
+        padding-top: 20px;
+      }
+      .snapshot-item {
+        background-color: #f8f9fa;
+        border: 1px solid #eee;
+        padding: 15px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .snapshot-item button {
+        width: auto;
+        padding: 8px 15px;
+        font-size: 14px;
+        background-color: #dc3545;
+      }
+      .snapshot-item button:hover {
+        background-color: #c82333;
+      }
+      footer {
+        text-align: center;
+        margin-top: 40px;
+        font-size: 14px;
+        color: #777;
+      }
+      @media (max-width: 600px) {
+        .container {
+          padding: 20px;
+        }
+        button {
+          font-size: 16px;
+          padding: 12px 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>QuickPayCheck: Your US Net Pay Calculator</h1>
+      <p>
+        Estimate your take-home pay after federal, state, and local taxes, and
+        social security deductions. Simple, fast, and accurate.
+      </p>
+
+      <div class="input-group">
+        <label for="grossPay">Annual Gross Salary ($):</label>
+        <input type="number" id="grossPay" placeholder="e.g., 60000" required />
+      </div>
+      <div class="input-group">
+        <label for="payPeriod">Pay Period:</label>
+        <select id="payPeriod">
+          <option value="annually">Annually</option>
+          <option value="monthly">Monthly</option>
+          <option value="biweekly">Bi-weekly</option>
+          <option value="weekly">Weekly</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label for="state">State (e.g., CA for California):</label>
+        <input
+          type="text"
+          id="state"
+          placeholder="e.g., NY"
+          maxlength="2"
+          pattern="[A-Za-z]{2}"
+          title="Two-letter state abbreviation (e.g., CA)"
+          required
+        />
+      </div>
+
+      <button id="calculateBtn">Calculate Net Pay</button>
+
+      <div id="results">
+        <h2>Your Estimated Take-Home Pay</h2>
+        <p>Annual Net Pay: <strong id="annualNetPay"></strong></p>
+        <p>Monthly Net Pay: <strong id="monthlyNetPay"></strong></p>
+        <p>Total Taxes & Deductions: <strong id="totalDeductions"></strong></p>
+        <p>Federal Tax: <strong id="federalTax"></strong></p>
+        <p>State Tax: <strong id="stateTax"></strong></p>
+        <p>Social Security & Medicare (FICA): <strong id="ficaTax"></strong></p>
+        <button id="saveSnapshotBtn" class="save-snapshot-btn">
+          Save Current Calculation
+        </button>
+      </div>
+
+      <div id="snapshots-container">
+        <h2>My Tax Snapshots</h2>
+        <p>
+          Save and compare different pay scenarios. All data is stored securely
+          in your browser.
+        </p>
+        <div id="snapshotsList">
+          <p id="noSnapshotsMessage">
+            No snapshots saved yet. Calculate and save your first one!
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        &copy; 2025 QuickPayCheck. All rights reserved.
+        <a href="/privacy.html">Privacy Policy</a>
+      </p>
+    </footer>
+
+    <script>
+      // JavaScript would go here
+      const calculateBtn = document.getElementById("calculateBtn");
+      const saveSnapshotBtn = document.getElementById("saveSnapshotBtn");
+      const grossPayInput = document.getElementById("grossPay");
+      const payPeriodSelect = document.getElementById("payPeriod");
+      const stateInput = document.getElementById("state");
+      const resultsDiv = document.getElementById("results");
+      const annualNetPaySpan = document.getElementById("annualNetPay");
+      const monthlyNetPaySpan = document.getElementById("monthlyNetPay");
+      const totalDeductionsSpan = document.getElementById("totalDeductions");
+      const federalTaxSpan = document.getElementById("federalTax");
+      const stateTaxSpan = document.getElementById("stateTax");
+      const ficaTaxSpan = document.getElementById("ficaTax");
+      const snapshotsListDiv = document.getElementById("snapshotsList");
+      const noSnapshotsMessage = document.getElementById("noSnapshotsMessage");
+
+      // Placeholder for simplified tax calculation (highly simplified for example)
+      // In a real application, this would be much more complex or use an API
+      const TAX_RATES = {
+        federal: 0.15, // Average federal tax rate
+        fica: 0.0765, // Social Security (6.2%) + Medicare (1.45%)
+        states: {
+          NY: 0.06, // Example state tax
+          CA: 0.07,
+          TX: 0.0, // No state income tax
+          // Add more states
+        },
+      };
+
+      function calculatePay() {
+        const grossPay = parseFloat(grossPayInput.value);
+        const payPeriod = payPeriodSelect.value;
+        const state = stateInput.value.toUpperCase();
+
+        if (isNaN(grossPay) || grossPay <= 0) {
+          alert("Please enter a valid annual gross salary.");
+          return;
+        }
+        if (!state || state.length !== 2) {
+          alert(
+            "Please enter a valid two-letter state abbreviation (e.g., CA)."
+          );
+          return;
+        }
+
+        let annualGrossPay = grossPay;
+        if (payPeriod === "monthly") {
+          annualGrossPay = grossPay * 12;
+        } else if (payPeriod === "biweekly") {
+          annualGrossPay = grossPay * 26;
+        } else if (payPeriod === "weekly") {
+          annualGrossPay = grossPay * 52;
+        }
+
+        // Simplified tax calculation (DO NOT USE FOR REAL FINANCIAL ADVICE)
+        const federalTaxAmount = annualGrossPay * TAX_RATES.federal;
+        const ficaTaxAmount = annualGrossPay * TAX_RATES.fica;
+        const stateTaxRate = TAX_RATES.states[state] || 0.03; // Default if state not found
+        const stateTaxAmount = annualGrossPay * stateTaxRate;
+
+        const totalDeductions =
+          federalTaxAmount + ficaTaxAmount + stateTaxAmount;
+        const annualNetPay = annualGrossPay - totalDeductions;
+        const monthlyNetPay = annualNetPay / 12;
+
+        displayResults(
+          annualNetPay,
+          monthlyNetPay,
+          totalDeductions,
+          federalTaxAmount,
+          stateTaxAmount,
+          ficaTaxAmount
+        );
+      }
+
+      function displayResults(
+        annualNet,
+        monthlyNet,
+        totalDeduct,
+        federalTax,
+        stateTax,
+        ficaTax
+      ) {
+        annualNetPaySpan.textContent = `$${annualNet.toFixed(2)}`;
+        monthlyNetPaySpan.textContent = `$${monthlyNet.toFixed(2)}`;
+        totalDeductionsSpan.textContent = `$${totalDeduct.toFixed(2)}`;
+        federalTaxSpan.textContent = `$${federalTax.toFixed(2)}`;
+        stateTaxSpan.textContent = `$${stateTax.toFixed(2)}`;
+        ficaTaxSpan.textContent = `$${ficaTax.toFixed(2)}`;
+        resultsDiv.style.display = "block";
+      }
+
+      function saveSnapshot() {
+        const annualNetPay = annualNetPaySpan.textContent;
+        const monthlyNetPay = monthlyNetPaySpan.textContent;
+        const grossPay = grossPayInput.value;
+        const payPeriod = payPeriodSelect.value;
+        const state = stateInput.value.toUpperCase();
+        const timestamp = new Date().toLocaleString();
+
+        if (!annualNetPay || annualNetPay === "") {
+          alert("Please calculate your pay before saving a snapshot.");
+          return;
+        }
+
+        const snapshot = {
+          id: Date.now(), // Unique ID
+          grossPay: grossPay,
+          payPeriod: payPeriod,
+          state: state,
+          annualNetPay: annualNetPay,
+          monthlyNetPay: monthlyNetPay,
+          timestamp: timestamp,
+        };
+
+        let snapshots = JSON.parse(localStorage.getItem("paySnapshots")) || [];
+        snapshots.push(snapshot);
+        localStorage.setItem("paySnapshots", JSON.stringify(snapshots));
+        renderSnapshots();
+        alert("Calculation saved as a snapshot!");
+      }
+
+      function deleteSnapshot(id) {
+        let snapshots = JSON.parse(localStorage.getItem("paySnapshots")) || [];
+        snapshots = snapshots.filter((snapshot) => snapshot.id !== id);
+        localStorage.setItem("paySnapshots", JSON.stringify(snapshots));
+        renderSnapshots();
+      }
+
+      function renderSnapshots() {
+        let snapshots = JSON.parse(localStorage.getItem("paySnapshots")) || [];
+        snapshotsListDiv.innerHTML = ""; // Clear previous snapshots
+
+        if (snapshots.length === 0) {
+          noSnapshotsMessage.style.display = "block";
+          return;
+        } else {
+          noSnapshotsMessage.style.display = "none";
+        }
+
+        snapshots.forEach((snapshot) => {
+          const snapshotItem = document.createElement("div");
+          snapshotItem.className = "snapshot-item";
+          snapshotItem.innerHTML = `
+                    <div>
+                        <strong>Scenario:</strong> $${snapshot.grossPay} ${snapshot.payPeriod} in ${snapshot.state} <br>
+                        Net Pay (Annual): ${snapshot.annualNetPay} <br>
+                        Saved: ${snapshot.timestamp}
+                    </div>
+                    <button data-id="${snapshot.id}">Delete</button>
+                `;
+          snapshotsListDiv.appendChild(snapshotItem);
+
+          snapshotItem
+            .querySelector("button")
+            .addEventListener("click", (event) => {
+              deleteSnapshot(parseInt(event.target.dataset.id));
+            });
+        });
+      }
+
+      // Event Listeners
+      calculateBtn.addEventListener("click", calculatePay);
+      saveSnapshotBtn.addEventListener("click", saveSnapshot);
+
+      // Load snapshots on page load
+      document.addEventListener("DOMContentLoaded", renderSnapshots);
+    </script>
+  </body>
+</html>
